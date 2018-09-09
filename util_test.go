@@ -4,46 +4,46 @@ import "testing"
 
 func TestAppendVarintEmpty(t *testing.T) {
 
-	buffer := make([]byte, 0)
+	buffer := new(buffer)
 
-	buffer = appendVarint(buffer, 1)
+	buffer.appendVarint(1)
 
-	if len(buffer) != 1 {
+	if buffer.len() != 1 {
 		t.Error(buffer)
 	}
 }
 
 func TestAppendVarintFull(t *testing.T) {
 
-	buffer := make([]byte, 0)
+	buffer := new(buffer)
 
-	buffer = appendVarint(buffer, 1)
+	buffer.appendVarint(1)
 
-	if len(buffer) != 1 {
+	if buffer.len() != 1 {
 		t.Error(buffer)
 	}
 
-	buffer = appendVarint(buffer, 2)
+	buffer.appendVarint(2)
 
-	if len(buffer) != 2 {
+	if buffer.len() != 2 {
 		t.Error(buffer)
 	}
 }
 
 func TestGetVarintSingle(t *testing.T) {
 
-	buffer := make([]byte, 0)
+	buffer := new(buffer)
 
-	buffer = appendVarint(buffer, 1)
+	buffer.appendVarint(1)
 
-	value, buffer, err := getVarint(buffer)
+	value, err := buffer.getVarint()
 
 	if err != nil {
 		t.Error(err)
 	}
 
-	if len(buffer) != 0 {
-		t.Errorf("wrong buffer length: %d", len(buffer))
+	if buffer.len() != 0 {
+		t.Errorf("wrong buffer length: %d", buffer.len())
 	}
 
 	if value != 1 {
@@ -75,8 +75,8 @@ func TestGetVarintMultiple(t *testing.T) {
 		t.Error(err)
 	}
 
-	if len(*b) != 0 {
-		t.Errorf("wrong buffer length: %d", len(*b))
+	if b.len() != 0 {
+		t.Errorf("wrong buffer length: %d", b.len())
 	}
 
 	if value != 2 {

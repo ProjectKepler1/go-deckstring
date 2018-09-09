@@ -33,16 +33,19 @@ var (
 	}
 )
 
+// Encode a deck into a deckstring
 func Encode(deck Deck) (string, error) {
 
 	b := new(buffer)
 
-	buff, err := base64.URLEncoding.DecodeString("GU==")
+	/*buff, err := base64.URLEncoding.DecodeString("GU==")
 	if err != nil {
 		return "", err
 	}
 
 	b.append(buff)
+
+	log.Println(*b)*/
 
 	b.appendVarint(deck.Version)
 
@@ -54,14 +57,7 @@ func Encode(deck Deck) (string, error) {
 
 	b.appendVarint(god)
 
-	encodeCards(b, deck.Protos)
-
-	return base64.URLEncoding.EncodeToString(*b), nil
-}
-
-func encodeCards(b *buffer, protos []int64) {
-
-	arrays := collectCards(protos)
+	arrays := collectCards(deck.Protos)
 
 	for k, v := range arrays {
 		b.appendVarint(k)
@@ -70,6 +66,8 @@ func encodeCards(b *buffer, protos []int64) {
 			b.appendVarint(proto)
 		}
 	}
+
+	return base64.URLEncoding.EncodeToString(*b), nil
 }
 
 func collectCards(protos []int64) map[int64][]int64 {
@@ -92,4 +90,67 @@ func collectCards(protos []int64) map[int64][]int64 {
 		})
 	}
 	return arrays
+}
+
+// Decode a deckstring into a deck
+func Decode(data string) (*Deck, error) {
+
+	buff, err := base64.URLEncoding.DecodeString(data)
+	if err != nil {
+		return nil, err
+	}
+
+	b := newBuffer(buff)
+
+	version, err := b.getVarint()
+	if err != nil {
+		return nil, err
+	}
+
+	god, err := b.getVarint()
+	if err != nil {
+		return nil, err
+	}
+
+	godName, ok := godToName[god]
+	if !ok {
+		return nil, errors.New("invalid god")
+	}
+
+	protos := make([]int64, 0)
+	for b.len() > 0 {
+
+		num, err := b.getVarint()
+		if err != nil {
+			return nil, err
+		}
+
+		len, err := b.getVarint()
+		if err != nil {
+			return nil, err
+		}
+
+		var proto int64
+
+		for i := int64(0); i < len; i++ {
+
+			proto, err = b.getVarint()
+			if err != nil {
+				return nil, err
+			}
+
+			for j := int64(0); j < num; j++ {
+				protos = append(protos, proto)
+			}
+
+		}
+	}
+
+	pd := Deck{
+		Version: version,
+		God:     godName,
+		Protos:  protos,
+	}
+
+	return &pd, nil
 }

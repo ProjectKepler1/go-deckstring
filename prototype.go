@@ -7,10 +7,16 @@ import (
 	"strings"
 )
 
+// A Deck of prototype card ids
 type Deck struct {
 	Version int64   `json:"version"`
 	God     string  `json:"god"`
 	Protos  []int64 `json:"protos"`
+}
+
+type cardCollection struct {
+	frequency int64
+	protos    []int64
 }
 
 var (
@@ -57,12 +63,12 @@ func Encode(deck Deck) (string, error) {
 
 	b.appendVarint(god)
 
-	arrays := collectCards(deck.Protos)
+	ccs := collectCards(deck.Protos)
 
-	for k, v := range arrays {
-		b.appendVarint(k)
-		b.appendVarint(int64(len(v)))
-		for _, proto := range v {
+	for _, cc := range ccs {
+		b.appendVarint(cc.frequency)
+		b.appendVarint(int64(len(cc.protos)))
+		for _, proto := range cc.protos {
 			b.appendVarint(proto)
 		}
 	}
@@ -70,26 +76,44 @@ func Encode(deck Deck) (string, error) {
 	return base64.URLEncoding.EncodeToString(*b), nil
 }
 
-func collectCards(protos []int64) map[int64][]int64 {
+// gather cards into an ordered list of frequency, protos
+// the same list of protos (in any order) should always produce the same deck string
+func collectCards(protos []int64) []cardCollection {
 
+	// count the number of times each card appears in the list
 	counts := make(map[int64]int64)
 
 	for _, proto := range protos {
 		counts[proto]++
 	}
 
+	// create arrays of cards by frequency
 	arrays := make(map[int64][]int64)
-
 	for k, v := range counts {
 		arrays[v] = append(arrays[v], k)
 	}
 
+	// sort the protos in ascending order
 	for _, v := range arrays {
 		sort.Slice(v, func(i, j int) bool {
 			return v[j] > v[i]
 		})
 	}
-	return arrays
+
+	// turn those maps into arrays
+	var ccs []cardCollection
+	for k := range arrays {
+		ccs = append(ccs, cardCollection{
+			frequency: k,
+			protos:    arrays[k],
+		})
+	}
+
+	sort.Slice(ccs, func(i, j int) bool {
+		return ccs[j].frequency > ccs[i].frequency
+	})
+
+	return ccs
 }
 
 // Decode a deckstring into a deck

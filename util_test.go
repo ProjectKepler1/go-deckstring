@@ -54,12 +54,12 @@ func TestGetVarintSingle(t *testing.T) {
 
 func TestGetVarintMultiple(t *testing.T) {
 
-	buffer := make([]byte, 0)
+	b := new(buffer)
 
-	buffer = appendVarint(buffer, 1)
-	buffer = appendVarint(buffer, 2)
+	b.appendVarint(1)
+	b.appendVarint(2)
 
-	value, buffer, err := getVarint(buffer)
+	value, err := b.getVarint()
 
 	if err != nil {
 		t.Error(err)
@@ -69,14 +69,14 @@ func TestGetVarintMultiple(t *testing.T) {
 		t.Errorf("wrong value: %d", value)
 	}
 
-	value, buffer, err = getVarint(buffer)
+	value, err = b.getVarint()
 
 	if err != nil {
 		t.Error(err)
 	}
 
-	if len(buffer) != 0 {
-		t.Errorf("wrong buffer length: %d", len(buffer))
+	if len(*b) != 0 {
+		t.Errorf("wrong buffer length: %d", len(*b))
 	}
 
 	if value != 2 {

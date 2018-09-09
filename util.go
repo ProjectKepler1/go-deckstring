@@ -5,16 +5,24 @@ import (
 	"errors"
 )
 
-func appendVarint(buffer []byte, id int64) []byte {
-	added := make([]byte, 10)
-	count := binary.PutVarint(added, id)
-	return append(buffer, added[:count]...)
+type buffer []byte
+
+func (b *buffer) append(data []byte) {
+	*b = append(*b, data...)
 }
 
-func getVarint(buffer []byte) (int64, []byte, error) {
-	value, count := binary.Varint(buffer)
+func (b *buffer) appendVarint(id int64) {
+	added := make([]byte, 10)
+	count := binary.PutVarint(added, id)
+	b.append(added[:count])
+
+}
+
+func (b *buffer) getVarint() (int64, error) {
+	value, count := binary.Varint(*b)
 	if count < 0 {
-		return 0, buffer, errors.New("invalid varint")
+		return 0, errors.New("invalid varint")
 	}
-	return value, buffer[count:], nil
+	*b = (*b)[count:]
+	return value, nil
 }

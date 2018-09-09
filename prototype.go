@@ -10,18 +10,18 @@ import (
 
 // A Deck of prototype card ids
 type Deck struct {
-	Version int64   `json:"version"`
-	God     string  `json:"god"`
-	Protos  []int64 `json:"protos"`
+	Version uint64   `json:"version"`
+	God     string   `json:"god"`
+	Protos  []uint64 `json:"protos"`
 }
 
 type cardCollection struct {
-	frequency int64
-	protos    []int64
+	frequency uint64
+	protos    []uint64
 }
 
 var (
-	nameToGod = map[string]int64{
+	nameToGod = map[string]uint64{
 		"nature":    1,
 		"war":       2,
 		"death":     3,
@@ -30,7 +30,7 @@ var (
 		"deception": 6,
 	}
 
-	godToName = map[int64]string{
+	godToName = map[uint64]string{
 		1: "nature",
 		2: "war",
 		3: "death",
@@ -59,7 +59,7 @@ func Encode(deck Deck) (string, error) {
 
 	for _, cc := range ccs {
 		b.appendVarint(cc.frequency)
-		b.appendVarint(int64(len(cc.protos)))
+		b.appendVarint(uint64(len(cc.protos)))
 		for _, proto := range cc.protos {
 			b.appendVarint(proto)
 		}
@@ -81,17 +81,17 @@ func appendPrefix(b *buffer) {
 
 // gather cards into an ordered list of frequency, protos
 // the same list of protos (in any order) should always produce the same deck string
-func collectCards(protos []int64) []cardCollection {
+func collectCards(protos []uint64) []cardCollection {
 
 	// count the number of times each card appears in the list
-	counts := make(map[int64]int64)
+	counts := make(map[uint64]uint64)
 
 	for _, proto := range protos {
 		counts[proto]++
 	}
 
 	// create arrays of cards by frequency
-	arrays := make(map[int64][]int64)
+	arrays := make(map[uint64][]uint64)
 	for k, v := range counts {
 		arrays[v] = append(arrays[v], k)
 	}
@@ -144,7 +144,7 @@ func Decode(data string) (*Deck, error) {
 		return nil, errors.New("invalid god")
 	}
 
-	protos := make([]int64, 0)
+	protos := make([]uint64, 0)
 	for b.len() > 0 {
 
 		num, err := b.getVarint()
@@ -157,16 +157,16 @@ func Decode(data string) (*Deck, error) {
 			return nil, err
 		}
 
-		var proto int64
+		var proto uint64
 
-		for i := int64(0); i < len; i++ {
+		for i := uint64(0); i < len; i++ {
 
 			proto, err = b.getVarint()
 			if err != nil {
 				return nil, err
 			}
 
-			for j := int64(0); j < num; j++ {
+			for j := uint64(0); j < num; j++ {
 				protos = append(protos, proto)
 			}
 

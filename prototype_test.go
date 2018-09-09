@@ -38,7 +38,7 @@ func TestDeckStringSingleProtosSorted(t *testing.T) {
 	deck := Deck{
 		Version: 2,
 		God:     "war",
-		Protos:  []int64{1, 2, 3, 4, 5},
+		Protos:  []uint64{1, 2, 3, 4, 5},
 	}
 
 	ds, err := Encode(deck)
@@ -81,7 +81,7 @@ func TestDeckStringSingleProtosUnsorted(t *testing.T) {
 	deck := Deck{
 		Version: 2,
 		God:     "war",
-		Protos:  []int64{3, 5, 4, 2, 1},
+		Protos:  []uint64{3, 5, 4, 2, 1},
 	}
 
 	ds, err := Encode(deck)
@@ -124,7 +124,7 @@ func TestDeckStringSingleAndDoubleProtos(t *testing.T) {
 	deck := Deck{
 		Version: 2,
 		God:     "war",
-		Protos:  []int64{1, 2, 3, 4, 5, 2, 3},
+		Protos:  []uint64{1, 2, 3, 4, 5, 2, 3},
 	}
 
 	ds, err := Encode(deck)
@@ -151,7 +151,7 @@ func TestDeckStringSingleAndDoubleProtos(t *testing.T) {
 		t.Fatalf("wrong proto length, expected: %d, was %d", len(deck.Protos), len(after.Protos))
 	}
 
-	expected := []int64{1, 4, 5, 2, 2, 3, 3}
+	expected := []uint64{1, 4, 5, 2, 2, 3, 3}
 
 	for i, p := range expected {
 		if p != after.Protos[i] {
@@ -162,7 +162,7 @@ func TestDeckStringSingleAndDoubleProtos(t *testing.T) {
 
 func TestCollectCards(t *testing.T) {
 
-	protos := []int64{1, 2, 3, 4, 5, 2, 3}
+	protos := []uint64{1, 2, 3, 4, 5, 2, 3}
 
 	ccs := collectCards(protos)
 
@@ -189,7 +189,7 @@ func TestCollectCards(t *testing.T) {
 
 func TestFullDeck(t *testing.T) {
 
-	protos := []int64{
+	protos := []uint64{
 		290, 17, 201, 201, 80, 80, 93, 93, 64, 64, 185, 185, 55, 55, 97, 331, 281, 281, 252, 252, 330,
 		330, 280, 202, 202, 265, 265, 37, 94, 94,
 	}

@@ -1,6 +1,9 @@
 package deckstring
 
-import "testing"
+import (
+	"log"
+	"testing"
+)
 
 func TestAppendVarintEmpty(t *testing.T) {
 
@@ -35,6 +38,8 @@ func TestGetVarintSingle(t *testing.T) {
 	buffer := new(buffer)
 
 	buffer.appendVarint(1)
+
+	log.Println(*buffer)
 
 	value, err := buffer.getVarint()
 

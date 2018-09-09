@@ -83,7 +83,7 @@ func collectCards(protos []uint64) []cardCollection {
 }
 
 // Decode a deckstring into a deck
-func Decode(data string, version uint64) (*Deck, error) {
+func Decode(data string) (*Deck, error) {
 
 	buff, err := base64.URLEncoding.DecodeString(data)
 	if err != nil {
@@ -92,9 +92,13 @@ func Decode(data string, version uint64) (*Deck, error) {
 
 	b := newBuffer(buff)
 
-	_, err = b.getVarint()
+	version, err := b.getVarint()
 	if err != nil {
 		return nil, err
+	}
+
+	if version != 1 {
+		return nil, errors.New("unsupported deck string version")
 	}
 
 	protos := make([]uint64, 0)

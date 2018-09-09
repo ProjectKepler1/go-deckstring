@@ -8,8 +8,7 @@ import (
 func TestDeckStringNoProtos(t *testing.T) {
 
 	deck := Deck{
-		Version: 2,
-		God:     "war",
+		Version: 1,
 	}
 
 	ds, err := Encode(deck)
@@ -18,7 +17,7 @@ func TestDeckStringNoProtos(t *testing.T) {
 		t.Error(err)
 	}
 
-	after, err := Decode(ds)
+	after, err := Decode(ds, deck.Version)
 
 	if err != nil {
 		t.Error(err)
@@ -28,16 +27,12 @@ func TestDeckStringNoProtos(t *testing.T) {
 		t.Errorf("wrong version, expected: %d, was %d", deck.Version, after.Version)
 	}
 
-	if deck.God != after.God {
-		t.Errorf("wrong god, expected: %s, was %s", deck.God, after.God)
-	}
 }
 
 func TestDeckStringSingleProtosSorted(t *testing.T) {
 
 	deck := Deck{
-		Version: 2,
-		God:     "war",
+		Version: 1,
 		Protos:  []uint64{1, 2, 3, 4, 5},
 	}
 
@@ -47,7 +42,7 @@ func TestDeckStringSingleProtosSorted(t *testing.T) {
 		t.Error(err)
 	}
 
-	after, err := Decode(ds)
+	after, err := Decode(ds, 1)
 
 	if err != nil {
 		t.Error(err)
@@ -55,10 +50,6 @@ func TestDeckStringSingleProtosSorted(t *testing.T) {
 
 	if deck.Version != after.Version {
 		t.Errorf("wrong version, expected: %d, was %d", deck.Version, after.Version)
-	}
-
-	if deck.God != after.God {
-		t.Errorf("wrong god, expected: %s, was %s", deck.God, after.God)
 	}
 
 	if len(deck.Protos) != len(after.Protos) {
@@ -79,8 +70,7 @@ func TestDeckStringSingleProtosSorted(t *testing.T) {
 func TestDeckStringSingleProtosUnsorted(t *testing.T) {
 
 	deck := Deck{
-		Version: 2,
-		God:     "war",
+		Version: 1,
 		Protos:  []uint64{3, 5, 4, 2, 1},
 	}
 
@@ -90,7 +80,7 @@ func TestDeckStringSingleProtosUnsorted(t *testing.T) {
 		t.Error(err)
 	}
 
-	after, err := Decode(ds)
+	after, err := Decode(ds, deck.Version)
 
 	if err != nil {
 		t.Error(err)
@@ -98,10 +88,6 @@ func TestDeckStringSingleProtosUnsorted(t *testing.T) {
 
 	if deck.Version != after.Version {
 		t.Errorf("wrong version, expected: %d, was %d", deck.Version, after.Version)
-	}
-
-	if deck.God != after.God {
-		t.Errorf("wrong god, expected: %s, was %s", deck.God, after.God)
 	}
 
 	if len(deck.Protos) != len(after.Protos) {
@@ -122,8 +108,7 @@ func TestDeckStringSingleProtosUnsorted(t *testing.T) {
 func TestDeckStringSingleAndDoubleProtos(t *testing.T) {
 
 	deck := Deck{
-		Version: 2,
-		God:     "war",
+		Version: 1,
 		Protos:  []uint64{1, 2, 3, 4, 5, 2, 3},
 	}
 
@@ -133,7 +118,7 @@ func TestDeckStringSingleAndDoubleProtos(t *testing.T) {
 		t.Error(err)
 	}
 
-	after, err := Decode(ds)
+	after, err := Decode(ds, deck.Version)
 
 	if err != nil {
 		t.Error(err)
@@ -141,10 +126,6 @@ func TestDeckStringSingleAndDoubleProtos(t *testing.T) {
 
 	if deck.Version != after.Version {
 		t.Errorf("wrong version, expected: %d, was %d", deck.Version, after.Version)
-	}
-
-	if deck.God != after.God {
-		t.Errorf("wrong god, expected: %s, was %s", deck.God, after.God)
 	}
 
 	if len(deck.Protos) != len(after.Protos) {
@@ -194,16 +175,18 @@ func TestFullDeck(t *testing.T) {
 		330, 280, 202, 202, 265, 265, 37, 94, 94,
 	}
 
-	ds, err := Encode(Deck{Version: 1, God: "deception", Protos: protos})
+	ds, err := Encode(Deck{Version: 1, Protos: protos})
 
 	if err != nil {
 		t.Error(err)
 	}
 
-	_, err = Decode(ds)
+	_, err = Decode(ds, 1)
 
 	if err != nil {
 		t.Error(err)
 	}
+
+	t.Error(ds)
 
 }

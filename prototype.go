@@ -4,13 +4,11 @@ import (
 	"encoding/base64"
 	"errors"
 	"sort"
-	"strings"
 )
 
 // A Deck of prototype card ids
 type Deck struct {
 	Version uint64   `json:"version"`
-	God     string   `json:"god"`
 	Protos  []uint64 `json:"protos"`
 }
 
@@ -19,40 +17,17 @@ type cardCollection struct {
 	protos    []uint64
 }
 
-var (
-	nameToGod = map[string]uint64{
-		"nature":    1,
-		"war":       2,
-		"death":     3,
-		"light":     4,
-		"magic":     5,
-		"deception": 6,
-	}
-
-	godToName = map[uint64]string{
-		1: "nature",
-		2: "war",
-		3: "death",
-		4: "light",
-		5: "magic",
-		6: "deception",
-	}
-)
-
 // Encode a deck into a deckstring
 func Encode(deck Deck) (string, error) {
 
 	b := new(buffer)
 
-	b.appendVarint(deck.Version)
-
-	god, ok := nameToGod[strings.ToLower(deck.God)]
-
-	if !ok {
-		return "", errors.New("unrecognised god")
+	if deck.Version != 1 {
+		return "", errors.New("invalid version")
 	}
 
-	b.appendVarint(god)
+	// only support version 1
+	b.appendVarint(deck.Version)
 
 	ccs := collectCards(deck.Protos)
 
@@ -108,7 +83,7 @@ func collectCards(protos []uint64) []cardCollection {
 }
 
 // Decode a deckstring into a deck
-func Decode(data string) (*Deck, error) {
+func Decode(data string, version uint64) (*Deck, error) {
 
 	buff, err := base64.URLEncoding.DecodeString(data)
 	if err != nil {
@@ -117,19 +92,9 @@ func Decode(data string) (*Deck, error) {
 
 	b := newBuffer(buff)
 
-	version, err := b.getVarint()
+	_, err = b.getVarint()
 	if err != nil {
 		return nil, err
-	}
-
-	god, err := b.getVarint()
-	if err != nil {
-		return nil, err
-	}
-
-	godName, ok := godToName[god]
-	if !ok {
-		return nil, errors.New("invalid god")
 	}
 
 	protos := make([]uint64, 0)
@@ -163,7 +128,6 @@ func Decode(data string) (*Deck, error) {
 
 	pd := Deck{
 		Version: version,
-		God:     godName,
 		Protos:  protos,
 	}
 

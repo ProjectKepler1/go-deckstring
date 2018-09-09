@@ -3,6 +3,7 @@ package deckstring
 import (
 	"encoding/base64"
 	"errors"
+	"log"
 	"sort"
 	"strings"
 )
@@ -44,15 +45,6 @@ func Encode(deck Deck) (string, error) {
 
 	b := new(buffer)
 
-	/*buff, err := base64.URLEncoding.DecodeString("GU==")
-	if err != nil {
-		return "", err
-	}
-
-	b.append(buff)
-
-	log.Println(*b)*/
-
 	b.appendVarint(deck.Version)
 
 	god, ok := nameToGod[strings.ToLower(deck.God)]
@@ -74,6 +66,17 @@ func Encode(deck Deck) (string, error) {
 	}
 
 	return base64.URLEncoding.EncodeToString(*b), nil
+}
+
+func appendPrefix(b *buffer) {
+
+	buff, err := base64.URLEncoding.DecodeString("GU==")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	b.append(buff)
 }
 
 // gather cards into an ordered list of frequency, protos

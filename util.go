@@ -25,7 +25,7 @@ func (b *buffer) appendVarint(id int64) {
 
 func (b *buffer) getVarint() (int64, error) {
 	value, count := binary.Varint(*b)
-	if count < 0 {
+	if 0 >= count {
 		return 0, errors.New("invalid varint")
 	}
 	*b = (*b)[count:]

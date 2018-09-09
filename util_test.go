@@ -83,3 +83,12 @@ func TestGetVarintMultiple(t *testing.T) {
 		t.Errorf("wrong value: %d", value)
 	}
 }
+
+func TestGetInvalidVarint(t *testing.T) {
+
+	_, err := new(buffer).getVarint()
+
+	if err == nil {
+		t.Error("no error")
+	}
+}
